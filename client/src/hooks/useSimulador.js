@@ -1,3 +1,6 @@
+// IMPORTANTE: esta lógica é uma réplica do scoreEngine.js no backend.
+// Qualquer alteração às fórmulas ou pesos deve ser reflectida em ambos os ficheiros.
+
 import { useState, useMemo } from 'react'
 
 const PESOS = {

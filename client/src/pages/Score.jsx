@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { calcularScore } from '../services/api'
+import { useScore } from '../context/ScoreContext'
 
 const camposFormulario = [
   { id: 'receitaMediaMensal',    label: 'Receita média mensal (MT)',    placeholder: 'ex: 85000' },
@@ -49,6 +50,7 @@ function Score() {
     mesesDeHistorico:      '',
     dividaExistente:       '',
   })
+  const { setResultadoScore, setDadosNegocio } = useScore()
   const [resultado, setResultado]   = useState(null)
   const [erro, setErro]             = useState(null)
   const [aCarregar, setACarregar]   = useState(false)
@@ -68,6 +70,8 @@ function Score() {
       )
       const res = await calcularScore(dados)
       setResultado(res)
+      setResultadoScore(res)
+      setDadosNegocio(formulario)
     } catch (err) {
       setErro(err.message)
     } finally {
