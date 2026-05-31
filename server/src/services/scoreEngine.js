@@ -1,3 +1,7 @@
+// IMPORTANTE: a lógica deste ficheiro está replicada em client/src/hooks/useSimulador.js
+// para permitir cálculo client-side no simulador.
+// Qualquer alteração às fórmulas ou pesos deve ser reflectida em ambos os ficheiros.
+
 // Pesos de cada critério no score final
 const PESOS = {
   margemLucro:          0.20,
