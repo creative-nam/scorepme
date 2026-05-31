@@ -1,5 +1,6 @@
 import { useScore } from '../context/ScoreContext'
 import { useNavigate } from 'react-router-dom'
+import { descarregarRelatorio } from '../services/api'
 
 const coresCategoria = {
   'Baixo Risco':          { texto: 'text-emerald-700', fundo: 'bg-emerald-50',  borda: 'border-emerald-300' },
@@ -48,6 +49,7 @@ function Relatorio() {
   const navegar = useNavigate()
 
   if (!resultadoScore || !dadosNegocio) {
+    console.log('dadosNegocio:', dadosNegocio)
     return (
       <div className="max-w-2xl mx-auto px-6 py-20 text-center">
         <p className="text-gray-500 text-sm mb-4">
@@ -149,7 +151,10 @@ function Relatorio() {
 
       {/* Acções */}
       <div className="flex gap-3">
-        <button className="flex-1 bg-emerald-600 text-white text-sm py-2.5 rounded-lg font-medium hover:bg-emerald-700 transition-colors">
+        <button
+        onClick={() => descarregarRelatorio(dadosNegocio)}
+        className="flex-1 bg-emerald-600 text-white text-sm py-2.5 rounded-lg font-medium hover:bg-emerald-700 transition-colors"
+        >
           Descarregar PDF
         </button>
         <button

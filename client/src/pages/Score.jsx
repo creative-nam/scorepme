@@ -71,7 +71,7 @@ function Score() {
       const res = await calcularScore(dados)
       setResultado(res)
       setResultadoScore(res)
-      setDadosNegocio(formulario)
+      setDadosNegocio(dados)
     } catch (err) {
       setErro(err.message)
     } finally {

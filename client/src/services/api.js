@@ -6,14 +6,25 @@ async function calcularScore(dados) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(dados),
   });
-
   const resultado = await resposta.json();
-
-  if (!resposta.ok) {
-    throw new Error(resultado.erro || 'Erro ao calcular score');
-  }
-
+  if (!resposta.ok) throw new Error(resultado.erro || 'Erro ao calcular score');
   return resultado;
 }
 
-export { calcularScore };
+async function descarregarRelatorio(dados) {
+  const resposta = await fetch(`${BASE_URL}/score/relatorio`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(dados),
+  });
+  if (!resposta.ok) throw new Error('Erro ao gerar relatório');
+  const blob = await resposta.blob();
+  const url  = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href     = url;
+  link.download = 'relatorio-scorepme.pdf';
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
+export { calcularScore, descarregarRelatorio };
