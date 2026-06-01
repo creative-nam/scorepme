@@ -27,4 +27,15 @@ async function descarregarRelatorio(dados) {
   URL.revokeObjectURL(url);
 }
 
-export { calcularScore, descarregarRelatorio };
+async function obterRecomendacoes(dados, scoreAlvo) {
+  const resposta = await fetch(`${BASE_URL}/score/recomendacoes`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ ...dados, scoreAlvo }),
+  });
+  const resultado = await resposta.json();
+  if (!resposta.ok) throw new Error(resultado.erro || 'Erro ao obter recomendações');
+  return resultado;
+}
+
+export { calcularScore, descarregarRelatorio, obterRecomendacoes };
