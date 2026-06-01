@@ -1,6 +1,7 @@
+import { useState } from 'react'
 import { useScore } from '../context/ScoreContext'
 import { useNavigate } from 'react-router-dom'
-import { descarregarRelatorio } from '../services/api'
+import { descarregarRelatorio, obterRecomendacoes } from '../services/api'
 
 const coresCategoria = {
   'Baixo Risco':          { texto: 'text-emerald-700', fundo: 'bg-emerald-50',  borda: 'border-emerald-300' },
@@ -47,6 +48,22 @@ function MetricaCard({ label, valor, detalhe, corDetalhe = 'text-emerald-600' })
 function Relatorio() {
   const { resultadoScore, dadosNegocio } = useScore()
   const navegar = useNavigate()
+
+  const [scoreAlvo, setScoreAlvo]             = useState(80)
+  const [recomendacoes, setRecomendacoes]     = useState(null)
+  const [aCarregar, setACarregar]             = useState(false)
+
+  async function aoObterRecomendacoes() {
+    setACarregar(true)
+    try {
+      const res = await obterRecomendacoes(dadosNegocio, scoreAlvo)
+      setRecomendacoes(res)
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setACarregar(false)
+    }
+  }
 
   if (!resultadoScore || !dadosNegocio) {
     console.log('dadosNegocio:', dadosNegocio)
@@ -136,17 +153,69 @@ function Relatorio() {
         ))}
       </div>
 
-      {/* Dicas */}
-      <div className="bg-amber-50 border border-amber-200 rounded-xl p-5 mb-8">
-        <h3 className="text-sm font-medium text-amber-800 mb-3">Recomendações de melhoria</h3>
-        <ul className="flex flex-col gap-2">
-          {dicas.map((dica, i) => (
-            <li key={i} className="flex items-start gap-2 text-sm text-amber-700">
-              <span className="mt-0.5 text-amber-400">→</span>
-              {dica}
-            </li>
-          ))}
-        </ul>
+      {/* Score-alvo e recomendações */}
+      <div className="bg-white border border-gray-100 rounded-xl p-5 mb-6">
+        <h3 className="text-sm font-medium text-gray-700 mb-4">
+          Quero atingir um score de...
+        </h3>
+
+        <div className="flex items-center gap-4 mb-4">
+          <input
+            type="range"
+            min={resultadoScore.score + 1}
+            max={100}
+            value={scoreAlvo}
+            onChange={e => { setScoreAlvo(Number(e.target.value)); setRecomendacoes(null) }}
+            className="flex-1 accent-emerald-600"
+          />
+          <span className="text-emerald-700 font-bold text-lg w-10 text-right">
+            {scoreAlvo}
+          </span>
+        </div>
+
+        <button
+          onClick={aoObterRecomendacoes}
+          disabled={aCarregar}
+          className="w-full bg-emerald-600 text-white text-sm py-2 rounded-lg hover:bg-emerald-700 transition-colors disabled:opacity-50"
+        >
+          {aCarregar ? 'A calcular...' : 'Ver o que preciso de mudar'}
+        </button>
+
+        {/* Resultados */}
+        {recomendacoes && (
+          <div className="mt-5 flex flex-col gap-3">
+            <div className="flex items-center justify-between text-sm mb-1">
+              <span className="text-gray-500">Score actual</span>
+              <span className="font-semibold text-gray-800">{recomendacoes.scoreActual}</span>
+            </div>
+            <div className="flex items-center justify-between text-sm mb-3">
+              <span className="text-gray-500">Score-alvo</span>
+              <span className="font-semibold text-emerald-700">{recomendacoes.scoreAlvo}</span>
+            </div>
+
+            {recomendacoes.recomendacoes.length === 0 ? (
+              <p className="text-sm text-emerald-600 text-center py-2">
+                O teu perfil já está optimizado para este objectivo!
+              </p>
+            ) : (
+              recomendacoes.recomendacoes.map((rec, i) => (
+                <div
+                  key={i}
+                  className="border border-gray-100 rounded-xl p-4 flex flex-col gap-1"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-gray-800">{rec.titulo}</span>
+                    <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">
+                      +{rec.impacto} pts
+                    </span>
+                  </div>
+                  <p className="text-xs text-gray-500 leading-relaxed">{rec.descricao}</p>
+                  <p className="text-xs text-emerald-700 font-medium mt-1">→ {rec.accao}</p>
+                </div>
+              ))
+            )}
+          </div>
+        )}
       </div>
 
       {/* Acções */}
