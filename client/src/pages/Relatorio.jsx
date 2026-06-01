@@ -76,22 +76,22 @@ function Relatorio() {
     <div className="max-w-3xl mx-auto px-6 py-10">
 
       {/* Cabeçalho */}
-      <div className="flex items-start justify-between mb-8 pb-6 border-b border-gray-200">
+      <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-start', justifyContent: 'space-between', gap: '1rem', marginBottom: '2rem', paddingBottom: '1.5rem', borderBottom: '1px solid #e5e7eb' }}>
         <div>
-          <span className="text-xs bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-full">
+            <span className="text-xs bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-full">
             Relatório para apresentação bancária
-          </span>
-          <h2 className="text-2xl font-semibold text-gray-800 mt-2">Perfil Financeiro</h2>
-          <p className="text-sm text-gray-500 mt-1">
+            </span>
+            <h2 className="text-2xl font-semibold text-gray-800 mt-2">Perfil Financeiro</h2>
+            <p className="text-sm text-gray-500 mt-1">
             Gerado em {new Date().toLocaleDateString('pt-PT', { day: 'numeric', month: 'long', year: 'numeric' })}
             {' · '}
             {dadosNegocio.mesesDeHistorico} meses de histórico
-          </p>
+            </p>
         </div>
         <div className={`rounded-xl border px-6 py-4 text-center ${cores.fundo} ${cores.borda}`}>
-          <div className={`text-3xl font-bold ${cores.texto}`}>{resultadoScore.score}</div>
-          <div className={`text-xs mt-0.5 ${cores.texto}`}>Score PME</div>
-          <div className={`text-xs font-medium mt-1 ${cores.texto}`}>{resultadoScore.categoria}</div>
+            <div className={`text-3xl font-bold ${cores.texto}`}>{resultadoScore.score}</div>
+            <div className={`text-xs mt-0.5 ${cores.texto}`}>Score PME</div>
+            <div className={`text-xs font-medium mt-1 ${cores.texto}`}>{resultadoScore.categoria}</div>
         </div>
       </div>
 
