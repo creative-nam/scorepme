@@ -11,6 +11,17 @@ async function calcularScore(dados) {
   return resultado;
 }
 
+async function obterRecomendacoes(dados, scoreAlvo) {
+  const resposta = await fetch(`${BASE_URL}/score/recomendacoes`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ ...dados, scoreAlvo }),
+  });
+  const resultado = await resposta.json();
+  if (!resposta.ok) throw new Error(resultado.erro || 'Erro ao obter recomendações');
+  return resultado;
+}
+
 async function descarregarRelatorio(dados) {
   const resposta = await fetch(`${BASE_URL}/score/relatorio`, {
     method: 'POST',
@@ -27,15 +38,20 @@ async function descarregarRelatorio(dados) {
   URL.revokeObjectURL(url);
 }
 
-async function obterRecomendacoes(dados, scoreAlvo) {
-  const resposta = await fetch(`${BASE_URL}/score/recomendacoes`, {
+function descarregarTemplate() {
+  window.open(`${BASE_URL}/score/template`, '_blank');
+}
+
+async function uploadFicheiro(ficheiro) {
+  const formData = new FormData();
+  formData.append('ficheiro', ficheiro);
+  const resposta = await fetch(`${BASE_URL}/score/upload`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ ...dados, scoreAlvo }),
+    body: formData,
   });
   const resultado = await resposta.json();
-  if (!resposta.ok) throw new Error(resultado.erro || 'Erro ao obter recomendações');
+  if (!resposta.ok) throw new Error(resultado.erro || 'Erro ao processar ficheiro');
   return resultado;
 }
 
-export { calcularScore, descarregarRelatorio, obterRecomendacoes };
+export { calcularScore, obterRecomendacoes, descarregarRelatorio, descarregarTemplate, uploadFicheiro };
