@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { calcularScore } from '../services/api'
 import { useScore } from '../context/ScoreContext'
+import { useNavigate } from 'react-router-dom'
 
 const camposFormulario = [
   { id: 'receitaMediaMensal',    label: 'Receita média mensal (MT)',    placeholder: 'ex: 85000' },
@@ -54,6 +55,7 @@ function Score() {
   const [resultado, setResultado]   = useState(null)
   const [erro, setErro]             = useState(null)
   const [aCarregar, setACarregar]   = useState(false)
+  const navegar = useNavigate()
 
   function aoAlterar(e) {
     setFormulario({ ...formulario, [e.target.id]: e.target.value })
@@ -147,6 +149,13 @@ function Score() {
                 <BarraScore key={chave} label={labelBreakdown[chave] ?? chave} valor={valor} />
               ))}
             </div>
+
+            <button
+                onClick={() => navegar('/relatorio')}
+                className="w-full border border-emerald-200 text-emerald-700 text-sm py-2 rounded-lg hover:bg-emerald-50 transition-colors"
+            >
+                Ver relatório completo →
+            </button>
 
           </div>
         )}
