@@ -2,6 +2,10 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useScore } from '../context/ScoreContext'
 import { calcularScore, uploadFicheiro, descarregarTemplate } from '../services/api'
+import {
+  RadialBarChart, RadialBar, ResponsiveContainer,
+  BarChart, Bar, XAxis, YAxis, Tooltip, Legend, CartesianGrid,
+} from 'recharts'
 
 const camposFormulario = [
   { id: 'receitaMediaMensal',    label: 'Receita média mensal (MT)',    placeholder: 'ex: 85000' },
@@ -27,17 +31,82 @@ const labelBreakdown = {
 }
 
 function BarraScore({ label, valor }) {
+  const valorArredondado = Math.round(valor)
+
+  const cor = valorArredondado >= 70
+    ? { barra: '#059669', fundo: 'bg-emerald-50', texto: 'text-emerald-700', track: '#d1fae5' }
+    : valorArredondado >= 40
+    ? { barra: '#d97706', fundo: 'bg-amber-50',   texto: 'text-amber-700',   track: '#fef3c7' }
+    : { barra: '#dc2626', fundo: 'bg-red-50',     texto: 'text-red-700',     track: '#fee2e2' }
+
+  const icone = valorArredondado >= 70 ? '✓' : valorArredondado >= 40 ? '!' : '✗'
+
   return (
-    <div className="mb-3">
-      <div className="flex justify-between text-sm mb-1">
-        <span className="text-gray-500">{label}</span>
-        <span className="font-medium text-gray-700">{Math.round(valor)}/100</span>
+    <div className={`rounded-lg px-3 py-2.5 mb-2 ${cor.fundo}`}>
+      <div className="flex justify-between items-center mb-1.5">
+        <div className="flex items-center gap-2">
+          <span className={`text-xs font-bold ${cor.texto}`}>{icone}</span>
+          <span className="text-sm text-gray-600">{label}</span>
+        </div>
+        <span className={`text-sm font-bold ${cor.texto}`}>{valorArredondado}/100</span>
       </div>
-      <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+      <div className="h-2 rounded-full overflow-hidden" style={{ background: cor.track }}>
         <div
-          className="h-full bg-emerald-500 rounded-full transition-all duration-500"
-          style={{ width: `${valor}%` }}
+          className="h-full rounded-full transition-all duration-500"
+          style={{ width: `${valor}%`, background: cor.barra }}
         />
+      </div>
+    </div>
+  )
+}
+
+function GaugeScore({ score, categoria }) {
+  const cor = score >= 70 ? '#059669' : score >= 40 ? '#d97706' : '#dc2626'
+
+  const dados = [
+    { name: 'fundo', valor: 100, fill: '#f3f4f6' },
+    { name: 'score', valor: score, fill: cor },
+  ]
+
+  return (
+    <div className="bg-white border border-gray-100 rounded-xl p-5">
+      <h3 className="text-sm font-medium text-gray-700 mb-2">Score global</h3>
+      <div style={{ position: 'relative', height: 180 }}>
+        <ResponsiveContainer width="100%" height="100%">
+          <RadialBarChart
+            innerRadius="60%"
+            outerRadius="100%"
+            startAngle={180}
+            endAngle={0}
+            data={dados}
+            barSize={20}
+          >
+            <RadialBar dataKey="valor" cornerRadius={8} background={false} />
+          </RadialBarChart>
+        </ResponsiveContainer>
+
+        {/* Score no centro */}
+        <div style={{
+          position: 'absolute',
+          bottom: '10%',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          textAlign: 'center',
+        }}>
+          <div style={{ fontSize: 36, fontWeight: 700, color: cor, lineHeight: 1 }}>
+            {score}
+          </div>
+          <div style={{ fontSize: 12, color: '#6b7280', marginTop: 2 }}>/100</div>
+          <div style={{ fontSize: 12, fontWeight: 500, color: cor, marginTop: 4 }}>
+            {categoria}
+          </div>
+        </div>
+      </div>
+
+      {/* Legenda */}
+      <div className="flex justify-between text-xs text-gray-400 px-2 mt-1">
+        <span>0 — Alto Risco</span>
+        <span>Baixo Risco — 100</span>
       </div>
     </div>
   )
@@ -271,6 +340,8 @@ function Score() {
               <div className={`text-sm mt-1 ${cores.texto}`}>/100</div>
               <div className={`text-base font-medium mt-2 ${cores.texto}`}>{resultado.categoria}</div>
             </div>
+            {/* Gauge — substitui o radar */}
+            <GaugeScore score={resultado.score} categoria={resultado.categoria} />
             <div className="bg-white border border-gray-100 rounded-xl p-5">
               <h3 className="text-sm font-medium text-gray-700 mb-4">Detalhe por critério</h3>
               {Object.entries(resultado.breakdown).map(([chave, valor]) => (
