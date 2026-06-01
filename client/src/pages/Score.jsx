@@ -112,6 +112,62 @@ function GaugeScore({ score, categoria }) {
   )
 }
 
+function GraficoHistorico({ dadosMensais }) {
+  if (!dadosMensais || dadosMensais.length === 0) return null
+
+  // Agrupa por trimestre se tiver mais de 6 meses
+  const dados = dadosMensais.length > 6
+    ? dadosMensais.reduce((acc, item, i) => {
+        const trimestre = Math.floor(i / 3)
+        if (!acc[trimestre]) {
+          acc[trimestre] = { mes: `T${trimestre + 1}`, receita: 0, despesas: 0, lucro: 0, count: 0 }
+        }
+        acc[trimestre].receita  += item.receita
+        acc[trimestre].despesas += item.despesas
+        acc[trimestre].lucro    += item.lucro
+        acc[trimestre].count    += 1
+        return acc
+      }, []).map(t => ({
+        mes:      t.mes,
+        receita:  Math.round(t.receita  / t.count),
+        despesas: Math.round(t.despesas / t.count),
+        lucro:    Math.round(t.lucro    / t.count),
+      }))
+    : dadosMensais
+
+  const formatarValor = (v) => `MT ${(v / 1000).toFixed(0)}k`
+
+  return (
+    <div className="bg-white border border-gray-100 rounded-xl p-5">
+      <h3 className="text-sm font-medium text-gray-700 mb-1">Evolução financeira</h3>
+      <p className="text-xs text-gray-400 mb-4">
+        {dadosMensais.length > 6 ? 'Médias trimestrais' : 'Dados mensais'}
+      </p>
+      <ResponsiveContainer width="100%" height={200}>
+        <BarChart data={dados} barGap={2}>
+          <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
+          <XAxis dataKey="mes" tick={{ fontSize: 11, fill: '#9ca3af' }} />
+          <YAxis tickFormatter={formatarValor} tick={{ fontSize: 11, fill: '#9ca3af' }} />
+          <Tooltip
+            formatter={(valor, nome) => [
+              `MT ${Number(valor).toLocaleString('pt-PT')}`,
+              nome.charAt(0).toUpperCase() + nome.slice(1),
+            ]}
+            contentStyle={{ fontSize: 12, borderRadius: 8, border: '1px solid #e5e7eb' }}
+          />
+          <Legend
+            wrapperStyle={{ fontSize: 12 }}
+            formatter={nome => nome.charAt(0).toUpperCase() + nome.slice(1)}
+          />
+          <Bar dataKey="receita"  fill="#059669" radius={[4, 4, 0, 0]} />
+          <Bar dataKey="despesas" fill="#f59e0b" radius={[4, 4, 0, 0]} />
+          <Bar dataKey="lucro"    fill="#3b82f6" radius={[4, 4, 0, 0]} />
+        </BarChart>
+      </ResponsiveContainer>
+    </div>
+  )
+}
+
 function Score() {
   const [modoEntrada, setModoEntrada] = useState('manual') // 'manual' | 'upload'
   const [formulario, setFormulario]   = useState({
@@ -124,6 +180,7 @@ function Score() {
   const [ficheiro, setFicheiro]       = useState(null)
   const [resultado, setResultado]     = useState(null)
   const [dadosExtraidos, setDadosExtraidos] = useState(null)
+  const [dadosMensais, setDadosMensais] = useState(null)
   const [erro, setErro]               = useState(null)
   const [aCarregar, setACarregar]     = useState(false)
 
@@ -164,6 +221,7 @@ function Score() {
       setDadosExtraidos(res.dados)
       setResultadoScore(res.resultado)
       setDadosNegocio(res.dados)
+      setDadosMensais(res.dados.dadosMensais || null)
       // Preenche o formulário com os dados extraídos para o utilizador ver
       setFormulario({
         receitaMediaMensal:    String(res.dados.receitaMediaMensal),
@@ -340,8 +398,10 @@ function Score() {
               <div className={`text-sm mt-1 ${cores.texto}`}>/100</div>
               <div className={`text-base font-medium mt-2 ${cores.texto}`}>{resultado.categoria}</div>
             </div>
-            {/* Gauge — substitui o radar */}
+            {/* Gráfico de gauge */}
             <GaugeScore score={resultado.score} categoria={resultado.categoria} />
+            {/* Gráfico histórico — só aparece após upload */}
+            {dadosMensais && <GraficoHistorico dadosMensais={dadosMensais} />}
             <div className="bg-white border border-gray-100 rounded-xl p-5">
               <h3 className="text-sm font-medium text-gray-700 mb-4">Detalhe por critério</h3>
               {Object.entries(resultado.breakdown).map(([chave, valor]) => (

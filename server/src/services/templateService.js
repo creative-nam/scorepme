@@ -82,12 +82,20 @@ function processarFicheiro(buffer, mimetype) {
   const desvioPad  = Math.sqrt(variancia);
   const variacaoReceitaPct = media > 0 ? Math.round((desvioPad / media) * 100) : 0;
 
-  return {
+  const dadosMensais = dados.map(l => ({
+  mes:      String(l[0] || ''),
+  receita:  Number(l[1]) || 0,
+  despesas: Number(l[2]) || 0,
+  lucro:    (Number(l[1]) || 0) - (Number(l[2]) || 0),
+  }));
+
+    return {
     receitaMediaMensal,
     despesasMediasMensais,
     variacaoReceitaPct,
     mesesDeHistorico,
     dividaExistente,
+    dadosMensais,
   };
 }
 
