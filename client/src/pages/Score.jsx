@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useScore } from '../context/ScoreContext'
 import { calcularScore, uploadFicheiro, descarregarTemplate } from '../services/api'
@@ -59,6 +59,35 @@ function BarraScore({ label, valor }) {
     </div>
   )
 }
+
+function useContador(valorFinal, duracao = 1000) {
+  const [valorActual, setValorActual] = useState(0)
+
+  useEffect(() => {
+    if (valorFinal === 0) return
+    const inicio    = performance.now()
+    const animar    = (agora) => {
+      const progresso = Math.min((agora - inicio) / duracao, 1)
+      const easing    = 1 - Math.pow(1 - progresso, 3) // ease-out cúbico
+      setValorActual(Math.round(easing * valorFinal))
+      if (progresso < 1) requestAnimationFrame(animar)
+    }
+    requestAnimationFrame(animar)
+  }, [valorFinal, duracao])
+
+  return valorActual
+}
+
+  function ScorePrincipal({ score, categoria, cores }) {
+    const scoreAnimado = useContador(score)
+    return (
+      <div className={`rounded-xl border p-6 text-center ${cores.fundo} ${cores.borda}`}>
+        <div className={`text-5xl font-bold ${cores.texto}`}>{scoreAnimado}</div>
+        <div className={`text-sm mt-1 ${cores.texto}`}>/100</div>
+        <div className={`text-base font-medium mt-2 ${cores.texto}`}>{categoria}</div>
+      </div>
+    )
+  }
 
 function GaugeScore({ score, categoria }) {
   const cor = score >= 70 ? '#059669' : score >= 40 ? '#d97706' : '#dc2626'
@@ -393,11 +422,7 @@ function Score() {
           </div>
         ) : (
           <div className="flex flex-col gap-4">
-            <div className={`rounded-xl border p-6 text-center ${cores.fundo} ${cores.borda}`}>
-              <div className={`text-5xl font-bold ${cores.texto}`}>{resultado.score}</div>
-              <div className={`text-sm mt-1 ${cores.texto}`}>/100</div>
-              <div className={`text-base font-medium mt-2 ${cores.texto}`}>{resultado.categoria}</div>
-            </div>
+            <ScorePrincipal score={resultado.score} categoria={resultado.categoria} cores={cores} />
             {/* Gráfico de gauge */}
             <GaugeScore score={resultado.score} categoria={resultado.categoria} />
             {/* Gráfico histórico — só aparece após upload */}
