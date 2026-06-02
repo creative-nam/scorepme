@@ -10,6 +10,7 @@ const LABEL_BREAKDOWN = {
 
 function gerarRelatorioPDF(res, dadosNegocio, resultadoScore) {
   const doc = new PDFDocument({ margin: 50, size: 'A4' });
+  const nomeNegocio = dadosNegocio.nomeNegocio || 'Perfil Financeiro';
 
   res.setHeader('Content-Type', 'application/pdf');
   res.setHeader('Content-Disposition', 'attachment; filename=relatorio-scorepme.pdf');
@@ -18,7 +19,7 @@ function gerarRelatorioPDF(res, dadosNegocio, resultadoScore) {
   // ── Cabeçalho ──
   doc
     .fontSize(22).fillColor('#0F6E56').font('Helvetica-Bold')
-    .text('ScorePME', 50, 50)
+    .text(nomeNegocio, 50, 50)
     .fontSize(10).fillColor('#888780').font('Helvetica')
     .text('Relatório para Apresentação Bancária', 50, 78)
     .text(

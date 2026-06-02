@@ -179,6 +179,46 @@ function Inicio() {
         ))}
       </div>
 
+      {/* Como funciona */}
+      <div className="max-w-4xl mx-auto px-6 py-10 border-b border-gray-100">
+        <h2 className="text-xl font-semibold text-gray-800 mb-1">Como funciona</h2>
+        <p className="text-sm text-gray-500 mb-8">Três passos para acederes ao crédito que o teu negócio merece.</p>
+
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1.5rem' }}>
+          {[
+            {
+              numero: '01',
+              titulo: 'Insere os teus dados',
+              descricao: 'Preenche o formulário com os dados financeiros do teu negócio, ou faz upload de um ficheiro Excel com o histórico mensal.',
+              emoji: '📋',
+            },
+            {
+              numero: '02',
+              titulo: 'Obtém o teu score',
+              descricao: 'O nosso algoritmo analisa a saúde financeira do teu negócio e gera um score de crédito baseado em cinco critérios-chave.',
+              emoji: '📊',
+            },
+            {
+              numero: '03',
+              titulo: 'Apresenta ao banco',
+              descricao: 'Descarrega o relatório formatado, segue as recomendações personalizadas e apresenta o teu perfil financeiro com confiança.',
+              emoji: '🏦',
+            },
+          ].map(({ numero, titulo, descricao, emoji }) => (
+            <div
+              key={numero}
+              style={{ flex: '1 1 200px' }}
+              className="bg-white border border-gray-100 rounded-xl p-6 relative"
+            >
+              <div className="text-3xl mb-4">{emoji}</div>
+              <div className="text-xs font-bold text-emerald-600 mb-1">{numero}</div>
+              <div className="text-sm font-semibold text-gray-800 mb-2">{titulo}</div>
+              <div className="text-sm text-gray-500 leading-relaxed">{descricao}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
       {/* Educação financeira */}
       <div className="max-w-4xl mx-auto px-6 pb-16">
         <h2 className="text-xl font-semibold text-gray-800 mb-1">Educação financeira</h2>

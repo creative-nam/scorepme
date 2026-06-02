@@ -46,7 +46,7 @@ function MetricaCard({ label, valor, detalhe, corDetalhe = 'text-emerald-600' })
 }
 
 function Relatorio() {
-  const { resultadoScore, dadosNegocio } = useScore()
+  const { resultadoScore, dadosNegocio, nomeNegocio } = useScore()
   const navegar = useNavigate()
 
   const [scoreAlvo, setScoreAlvo]             = useState(80)
@@ -98,7 +98,9 @@ function Relatorio() {
             <span className="text-xs bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-full">
             Relatório para apresentação bancária
             </span>
-            <h2 className="text-2xl font-semibold text-gray-800 mt-2">Perfil Financeiro</h2>
+            <h2 className="text-2xl font-semibold text-gray-800 mt-2">
+              {nomeNegocio ? nomeNegocio : 'Perfil Financeiro'}
+            </h2>
             <p className="text-sm text-gray-500 mt-1">
             Gerado em {new Date().toLocaleDateString('pt-PT', { day: 'numeric', month: 'long', year: 'numeric' })}
             {' · '}
@@ -221,8 +223,8 @@ function Relatorio() {
       {/* Acções */}
       <div className="flex gap-3">
         <button
-        onClick={() => descarregarRelatorio(dadosNegocio)}
-        className="flex-1 bg-emerald-600 text-white text-sm py-2.5 rounded-lg font-medium hover:bg-emerald-700 transition-colors"
+          onClick={() => descarregarRelatorio({ ...dadosNegocio, nomeNegocio })}
+          className="flex-1 bg-emerald-600 text-white text-sm py-2.5 rounded-lg font-medium hover:bg-emerald-700 transition-colors"
         >
           Descarregar PDF
         </button>

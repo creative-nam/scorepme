@@ -8,11 +8,12 @@ import {
 } from 'recharts'
 
 const camposFormulario = [
-  { id: 'receitaMediaMensal',    label: 'Receita média mensal (MT)',    placeholder: 'ex: 85000' },
-  { id: 'despesasMediasMensais', label: 'Despesas médias mensais (MT)', placeholder: 'ex: 62000' },
-  { id: 'variacaoReceitaPct',    label: 'Variação de receita (%)',      placeholder: 'ex: 18'    },
-  { id: 'mesesDeHistorico',      label: 'Meses de histórico',           placeholder: 'ex: 14'    },
-  { id: 'dividaExistente',       label: 'Dívida existente (MT)',        placeholder: 'ex: 20000' },
+  { id: 'nomeNegocio',           label: 'Nome do negócio',             placeholder: 'ex: Mercearia Esperança',  tipo: 'text'   },
+  { id: 'receitaMediaMensal',    label: 'Receita média mensal (MT)',    placeholder: 'ex: 85000',               tipo: 'number' },
+  { id: 'despesasMediasMensais', label: 'Despesas médias mensais (MT)', placeholder: 'ex: 62000',               tipo: 'number' },
+  { id: 'variacaoReceitaPct',    label: 'Variação de receita (%)',      placeholder: 'ex: 18',                  tipo: 'number' },
+  { id: 'mesesDeHistorico',      label: 'Meses de histórico',           placeholder: 'ex: 14',                  tipo: 'number' },
+  { id: 'dividaExistente',       label: 'Dívida existente (MT)',        placeholder: 'ex: 20000',               tipo: 'number' },
 ]
 
 const coresCategoria = {
@@ -199,7 +200,8 @@ function GraficoHistorico({ dadosMensais }) {
 
 function Score() {
   const [modoEntrada, setModoEntrada] = useState('manual') // 'manual' | 'upload'
-  const [formulario, setFormulario]   = useState({
+  const [formulario, setFormulario] = useState({
+    nomeNegocio:           '',
     receitaMediaMensal:    '',
     despesasMediasMensais: '',
     variacaoReceitaPct:    '',
@@ -213,7 +215,7 @@ function Score() {
   const [erro, setErro]               = useState(null)
   const [aCarregar, setACarregar]     = useState(false)
 
-  const { setResultadoScore, setDadosNegocio } = useScore()
+  const { setResultadoScore, setDadosNegocio, setNomeNegocio } = useScore()
   const navegar = useNavigate()
 
   function aoAlterar(e) {
@@ -226,12 +228,15 @@ function Score() {
     setACarregar(true)
     try {
       const dados = Object.fromEntries(
-        Object.entries(formulario).map(([k, v]) => [k, Number(v)])
+        Object.entries(formulario).map(([k, v]) => [
+          k, k === 'nomeNegocio' ? v : Number(v)
+        ])
       )
       const res = await calcularScore(dados)
       setResultado(res)
       setResultadoScore(res)
       setDadosNegocio(dados)
+      setNomeNegocio(dados.nomeNegocio || '')
     } catch (err) {
       setErro(err.message)
     } finally {
@@ -250,6 +255,7 @@ function Score() {
       setDadosExtraidos(res.dados)
       setResultadoScore(res.resultado)
       setDadosNegocio(res.dados)
+      setNomeNegocio('')
       setDadosMensais(res.dados.dadosMensais || null)
       // Preenche o formulário com os dados extraídos para o utilizador ver
       setFormulario({
@@ -303,12 +309,12 @@ function Score() {
         {/* Modo manual */}
         {modoEntrada === 'manual' && (
           <form onSubmit={aoSubmeterManual} className="flex flex-col gap-4">
-            {camposFormulario.map(({ id, label, placeholder }) => (
+            {camposFormulario.map(({ id, label, placeholder, tipo }) => (
               <div key={id}>
                 <label htmlFor={id} className="block text-sm text-gray-600 mb-1">{label}</label>
                 <input
                   id={id}
-                  type="number"
+                  type={tipo}
                   placeholder={placeholder}
                   value={formulario[id]}
                   onChange={aoAlterar}
