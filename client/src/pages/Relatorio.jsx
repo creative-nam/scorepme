@@ -3,6 +3,14 @@ import { useScore } from '../context/ScoreContext'
 import { useNavigate } from 'react-router-dom'
 import { descarregarRelatorio, obterRecomendacoes } from '../services/api'
 
+const MEDIA_SECTOR = {
+  margemLucro:         58,
+  ratioDespesa:        55,
+  consistenciaReceita: 62,
+  longevidade:         65,
+  cargaDivida:         60,
+}
+
 const coresCategoria = {
   'Baixo Risco':          { texto: 'text-emerald-700', fundo: 'bg-emerald-50',  borda: 'border-emerald-300' },
   'Risco Moderado-Baixo': { texto: 'text-blue-700',    fundo: 'bg-blue-50',     borda: 'border-blue-300'    },
@@ -138,21 +146,67 @@ function Relatorio() {
 
       {/* Breakdown */}
       <div className="bg-white border border-gray-100 rounded-xl p-5 mb-6">
-        <h3 className="text-sm font-medium text-gray-700 mb-4">Avaliação por critério</h3>
-        {Object.entries(resultadoScore.breakdown).map(([chave, valor]) => (
-          <div key={chave} className="mb-3">
-            <div className="flex justify-between text-sm mb-1">
-              <span className="text-gray-500">{labelBreakdown[chave] ?? chave}</span>
-              <span className="font-medium text-gray-700">{Math.round(valor)}/100</span>
+        <h3 className="text-sm font-medium text-gray-700 mb-1">Avaliação por critério</h3>
+        <p className="text-xs text-gray-400 mb-4">Comparação com a média do sector (comércio a retalho)</p>
+
+        {Object.entries(resultadoScore.breakdown).map(([chave, valor]) => {
+          const valorArredondado = Math.round(valor)
+          const mediaSector      = MEDIA_SECTOR[chave] ?? 60
+          const cor = valorArredondado >= 70
+            ? { barra: '#059669', track: '#d1fae5' }
+            : valorArredondado >= 40
+            ? { barra: '#d97706', track: '#fef3c7' }
+            : { barra: '#dc2626', track: '#fee2e2' }
+          const acimaDaMedia = valorArredondado >= mediaSector
+
+          return (
+            <div key={chave} className="mb-4">
+              <div className="flex justify-between items-center mb-1">
+                <span className="text-sm text-gray-600">{labelBreakdown[chave] ?? chave}</span>
+                <div className="flex items-center gap-2">
+                  <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                    acimaDaMedia
+                      ? 'bg-emerald-50 text-emerald-700'
+                      : 'bg-amber-50 text-amber-700'
+                  }`}>
+                    {acimaDaMedia ? '↑ acima da média' : '↓ abaixo da média'}
+                  </span>
+                  <span className="text-sm font-bold text-gray-700">{valorArredondado}/100</span>
+                </div>
+              </div>
+
+              {/* Barra do negócio */}
+              <div className="relative h-2 rounded-full overflow-visible mb-1" style={{ background: cor.track }}>
+                <div
+                  className="h-full rounded-full transition-all duration-500"
+                  style={{ width: `${valor}%`, background: cor.barra }}
+                />
+                {/* Linha da média do sector */}
+                <div
+                  className="absolute top-[-4px] w-0.5 h-4 bg-gray-400 rounded-full"
+                  style={{ left: `${mediaSector}%` }}
+                />
+              </div>
+
+              <div className="flex justify-between text-xs text-gray-400 mt-1">
+                <span>Teu negócio: {valorArredondado}</span>
+                <span>Média do sector: {mediaSector}</span>
+              </div>
             </div>
-            <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-              <div
-                className="h-full bg-emerald-500 rounded-full"
-                style={{ width: `${valor}%` }}
-              />
-            </div>
+          )
+        })}
+
+        {/* Legenda */}
+        <div className="flex items-center gap-4 mt-3 pt-3 border-t border-gray-100">
+          <div className="flex items-center gap-1.5">
+            <div className="w-3 h-3 rounded-full bg-emerald-500" />
+            <span className="text-xs text-gray-400">O teu negócio</span>
           </div>
-        ))}
+          <div className="flex items-center gap-1.5">
+            <div className="w-0.5 h-3 bg-gray-400 rounded-full" />
+            <span className="text-xs text-gray-400">Média do sector</span>
+          </div>
+        </div>
       </div>
 
       {/* Score-alvo e recomendações */}
