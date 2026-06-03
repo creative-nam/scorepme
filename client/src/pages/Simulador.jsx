@@ -24,16 +24,23 @@ const labelBreakdown = {
 }
 
 function BarraBreakdown({ label, valor }) {
+  const v = Math.round(valor)
+
+  // Cor da barra baseada no valor: >=70 verde, >=40 amarelo, <40 vermelho
+  const corBarra = v >= 70 ? '#059669' : v >= 40 ? '#d97706' : '#dc2626'
+  const corTrack = v >= 70 ? '#d1fae5' : v >= 40 ? '#fef3c7' : '#fee2e2'
+  const corTexto = v >= 70 ? 'text-emerald-700' : v >= 40 ? 'text-amber-700' : 'text-red-700'
+
   return (
     <div className="mb-3">
       <div className="flex justify-between text-sm mb-1">
         <span className="text-gray-500">{label}</span>
-        <span className="font-medium text-gray-700">{Math.round(valor)}/100</span>
+        <span className={`font-medium ${corTexto}`}>{v}/100</span>
       </div>
-      <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+      <div className="h-2 rounded-full overflow-hidden" style={{ background: corTrack }}>
         <div
-          className="h-full bg-emerald-500 rounded-full transition-all duration-200"
-          style={{ width: `${valor}%` }}
+          className="h-full rounded-full transition-all duration-200"
+          style={{ width: `${valor}%`, background: corBarra }}
         />
       </div>
     </div>
