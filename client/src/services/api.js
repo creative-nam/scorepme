@@ -1,4 +1,4 @@
-const BASE_URL = '/api';
+const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 
 async function calcularScore(dados) {
   const resposta = await fetch(`${BASE_URL}/score/calcular`, {
